@@ -1,0 +1,7 @@
+{
+    "git.ignoreLimitWarning": true,
+    "java.configuration.updateBuildConfiguration": "disabled",
+    "search.exclude": {
+        "**/node_modules": false
+    }
+}
