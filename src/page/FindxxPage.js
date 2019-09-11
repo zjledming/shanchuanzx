@@ -83,13 +83,13 @@ export default class FindxxPage extends Component {
             // 先判断是否登录了
             if (LoginInfo.isLogin()) {
                 // 隐藏弹出框
-                this.refs.menu.close();
+                this.refs.menuxx.close();
                 this.setState({
                     zjf: LoginInfo.getZjf()
                 })
             } else {
                 // 然后弹出登录提示
-                this.refs.menu.open();
+                this.refs.menuxx.open();
                 this.setState({
                     zjf: '0'
                 });
@@ -267,7 +267,22 @@ export default class FindxxPage extends Component {
 
 
     gosonpage(flag, flagname) {
-        this.props.navigation.navigate('FindxxSonPage', { flag: flag, flagname: flagname });
+
+        // this.props.navigation.navigate('FindxxSonPage', { flag: flag, flagname: flagname });
+
+                this.props.navigation.navigate('FindxxSonPage', {
+                    flag: flag,
+                    flagname:flagname,
+                    // info: info,
+                    callback: ((info) => { //回调函数
+                        // 回调了
+                        //that.fetchNewsData(0, 10);
+                        this.refs.menuxx.close();
+                    })
+                });
+
+
+        
     }
 
     _godenglu() {
@@ -447,10 +462,9 @@ export default class FindxxPage extends Component {
 
     }
 
-    menu() {
+    menuxx() {
 
         return (
-
 
             <ImageBackground source={require('../img/dlbj.png')} style={{ width: WINDOW_WIDTH * 0.7, height: WINDOW_WIDTH * 0.7 * 1.58, marginTop: px2dp(100), marginLeft: WINDOW_WIDTH * 0.3 * 0.5 }}>
                 <View style={{
@@ -478,6 +492,19 @@ export default class FindxxPage extends Component {
             </ImageBackground>
 
         );
+
+
+        
+        // if(LoginInfo.isLogin()){
+
+        // }else{
+        //     return (
+        //        null
+        //     );
+        // }
+
+
+       
     }
 
 
@@ -494,8 +521,8 @@ export default class FindxxPage extends Component {
                 />
 
                 <EZSideMenu
-                    menu={this.menu()}
-                    ref="menu"
+                    menu={this.menuxx()}
+                    ref="menuxx"
                     type={EZSideMenu.type.Overlay}
                     direction={EZSideMenu.direction.Right}
                     panGestureEnabled={false}

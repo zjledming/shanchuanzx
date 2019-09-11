@@ -190,11 +190,12 @@ export default class MinePage extends Component {
                                 {/* <TouchableOpacity onPress={this._onPress.bind(this)}>   </TouchableOpacity>*/}
                                 <View
                                     style={[styles.avatar, styles.avatarContainer, { marginBottom: 20 }]}>
-                                    {this.state.avatarSource === null ?
+                                    {/* {this.state.avatarSource === null ? */}
+                                    {LoginInfo.isLogin() ?
                                         <Image style={styles.avatar}
-                                            source={require('../../img/yhtx.png')} /> :
-                                        <Image style={styles.avatar}
-                                            source={this.state.avatarSource} />
+                                            source={require('../../img/dltx.png')} /> :
+                                            <Image style={styles.avatar}
+                                            source={require('../../img/yhtx.png')} />
                                     }
                                 </View>
                             </TouchableOpacity>

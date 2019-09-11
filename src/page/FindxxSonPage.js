@@ -529,8 +529,12 @@ export default class FindxxSonPage extends Component {
 
 
     back() {
-
-        this.props.navigation.pop();
+        // this.props.navigation.pop();
+        if (!isSpace(this.props.navigation.state) && !isSpace(this.props.navigation.state.params) && !isSpace(this.props.navigation.state.params.callback) ) {
+            this.props.navigation.state.params.callback({});
+            this.props.navigation.goBack();
+        }
+       
     }
 
 
