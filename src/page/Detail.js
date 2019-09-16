@@ -32,7 +32,7 @@ import * as LoginInfo from '../page/Login/LoginInfo';
 import ToastUtil from "../utils/ToastUtil";
 import NavBar from '../common/NavBar';
 import BackgroundPage from '../common/BackgroundPage';
-import { getZwByUuid, getBtByUuid, getShoucflag, shouc, getplnum, dojifen } from '../api/news';
+import { getZwByUuid, getBtByUuid, getShoucflag, shouc, getplnum, dojifen,getbaseurl } from '../api/news';
 import { px2dp, getdthei, isSpace, checkdayu } from '../util/format';
 import { zdp, zsp } from "../utils/ScreenUtil";
 import Video from 'react-native-af-video-player'; // 视频组件
@@ -49,6 +49,8 @@ var WIDTH05 = DT_WIDTH * 0.5;
 // 计时器
 var count = 0;
 // var that;
+
+var baseUrl = getbaseurl();
 
 var WeChat = require('react-native-wechat');
 export default class Detail extends BackHandleComponent {
@@ -73,7 +75,8 @@ export default class Detail extends BackHandleComponent {
         this.params = this.props.navigation.state.params;
         let isLogin = LoginInfo.isLogin();
         let user_ = LoginInfo.getUserInfo();
-        WeChat.registerApp('wx86715bab7c585603');
+        //react-native-wechat 使用前必须初始化一次（有且仅一次）。建议放在项目的入口文件里：
+        WeChat.registerApp('wxef86d86cb7a99caa');
         this.state = {
             zwData: [], // 正文数据
             btData: {}, // 标题数据
@@ -574,6 +577,7 @@ export default class Detail extends BackHandleComponent {
 
 
     getCardView = () => {
+        var uuid = this.params.uuid;
         // const card =
         return (
             <Content style={{
@@ -590,7 +594,17 @@ export default class Detail extends BackHandleComponent {
                         WeChat.isWXAppInstalled()
                             .then((isInstalled) => {
                                 if (isInstalled) {
-                                    WeChat.shareToSession({ type: 'text', description: '测试微信好友分享文本' })
+                                    // { type: 'text', description: '测试微信好友分享文本' }
+                                    WeChat.shareToSession(
+                                        {
+                                            title: this.state.btData.title,
+                                            description: this.state.btData.jianjie,
+                                            thumbImage: baseUrl+'app/images/logo.png',
+                                            type: 'news',
+                                            webpageUrl: baseUrl+'app/jsp/shanc/xq.jsp?uuid='+uuid
+                                        }
+                                        
+                                        )
                                         .catch((error) => {
                                             ToastUtil.showShort(error.message);
                                         });
@@ -606,11 +620,11 @@ export default class Detail extends BackHandleComponent {
                             .then((isInstalled) => {
                                 if (isInstalled) {
                                     WeChat.shareToTimeline({
-                                        title: '微信朋友圈测试链接',
-                                        description: '分享自:江清清的技术专栏(www.lcode.org)',
-                                        thumbImage: 'http://mta.zttit.com:8080/images/ZTT_1404756641470_image.jpg',
-                                        type: 'news',
-                                        webpageUrl: 'http://www.lcode.org'
+                                        title: this.state.btData.title,
+                                            description: this.state.btData.jianjie,
+                                            thumbImage: baseUrl+'app/images/logo.png',
+                                            type: 'news',
+                                            webpageUrl: baseUrl+'app/jsp/shanc/xq.jsp?uuid='+uuid
                                     })
                                         .catch((error) => {
                                             ToastUtil.showShort(error.message);

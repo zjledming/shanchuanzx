@@ -76,10 +76,14 @@ export default class Kechengbuy extends Component {
         }
         let zffs = this.state.zffs;
         // 跳转到扫码界面  + "&kc_name=" + this.params.kcinfo.title 
-        let url_ = "app/jsp/shanc/scewm.jsp?kh_id=" + khinfo.id+ "&kh_name=" + khinfo.realname+ "&kh_qymc=" + khinfo.qymc + "&kh_phone=" + khinfo.phone  + "&kc_id=" + this.params.kcinfo.id + "&kc_ddje=" + this.params.kcinfo.jiage + "&appu_id=" + user.phone+ "&appu_name=" + user.realname;
+        // let url_ = "app/jsp/shanc/scewm.jsp?kh_id=" + khinfo.id+ "&kh_name=" + khinfo.realname+ "&kh_qymc=" + khinfo.qymc + "&kh_phone=" + khinfo.phone  + "&kc_id=" + this.params.kcinfo.id + "&kc_ddje=" + this.params.kcinfo.jiage + "&appu_id=" + user.phone+ "&appu_name=" + user.realname;
         //url_ = url_.replace('&','%26');
+        // 传id 就可以了，客户 购买了 哪个产品 销售是哪个
+        let url_ = "app/jsp/shanc/scewm.jsp?kh_id=" + khinfo.id  + "&kc_id=" + this.params.kcinfo.id  + "&appu_id=" + user.phone;
+    
         
         if (zffs == 'wx') {
+            // 微信支付
             this.props.navigation.navigate('WebScreen', {
                 url: url_,
                 name: "微信扫码支付",

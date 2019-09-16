@@ -68,7 +68,8 @@ export default class Detailkhal extends BackHandleComponent {
         this.params = this.props.navigation.state.params;
         let isLogin = LoginInfo.isLogin();
         let user_ = LoginInfo.getUserInfo();
-        // WeChat.registerApp('wx86715bab7c585603');
+       //react-native-wechat 使用前必须初始化一次（有且仅一次）。建议放在项目的入口文件里：
+    //    WeChat.registerApp('wxef86d86cb7a99caa');
         this.state = {
             zwData: [], // 正文数据
             btData: {}, // 标题数据
