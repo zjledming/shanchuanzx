@@ -103,14 +103,15 @@ android {
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
-        manifestPlaceholders = [
-                JPUSH_APPKEY: "011111111111",
-                APP_CHANNEL : "default"
-        ]
+        // manifestPlaceholders = [
+        //         JPUSH_APPKEY: "011111111111",
+        //         APP_CHANNEL : "default"
+        // ]
 
         manifestPlaceholders = [
                 JPUSH_APPKEY: "d6685fc0f4f949a31379f9b3",
-                APP_CHANNEL : "default"
+                APP_CHANNEL : "default",
+                QQ_APPID:""
         ]
 
         ndk {
@@ -162,6 +163,8 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-fs')
+    compile project(':react-native-qq')
     compile project(':react-native-keep-awake')
     compile project(':react-native-orientation')
     compile project(':rn-fetch-blob')

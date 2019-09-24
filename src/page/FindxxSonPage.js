@@ -13,7 +13,7 @@ import {
     TouchableOpacity, ScrollView,
     Dimensions,
     Image,
-    ToastAndroid, ActivityIndicator, Platform
+    ToastAndroid, ActivityIndicator, Platform,BackHandler
 } from 'react-native';
 import Swiper from 'react-native-swiper';//轮播图组件 
 import BackToTop from '../components/BackToTop'; // 顶部返回组件 
@@ -75,7 +75,7 @@ export default class FindxxSonPage extends Component {
     }
 
     componentWillMount() {
-
+         BackHandler.addEventListener('hardwareBackPress', this.onBackAndroid);
     }
 
     // 组件挂载
@@ -94,7 +94,13 @@ export default class FindxxSonPage extends Component {
 
     componentWillUnmount() {
         // this._navListener.remove();
+        BackHandler.removeEventListener('hardwareBackPress', this.onBackAndroid);
     }
+
+    onBackAndroid = () => {
+        this.back();
+                return true;
+            };
 
 
     // 搜索
@@ -305,19 +311,19 @@ export default class FindxxSonPage extends Component {
 
 
 
-    renderPic(lbms_, picurl_) {
+    renderPic(key_,lbms_, picurl_) {
 
         if (lbms_ == '1') {
             return (
-                <Image key={picurl_} style={styles.datuimg} source={{ uri: picurl_ }}></Image>
+                <Image key={key_} style={styles.datuimg} source={{ uri: picurl_ }}></Image>
             );
         } else if (lbms_ == '2') {
             return (
-                <Image key={picurl_} style={styles.onetuimg} source={{ uri: picurl_ }}></Image>
+                <Image key={key_} style={styles.onetuimg} source={{ uri: picurl_ }}></Image>
             );
         } else if (lbms_ == '3') {
             return (
-                <Image key={picurl_} style={styles.santuimg} source={{ uri: picurl_ }}></Image>
+                <Image key={key_} style={styles.santuimg} source={{ uri: picurl_ }}></Image>
             );
         }
     }
@@ -332,9 +338,14 @@ export default class FindxxSonPage extends Component {
 
         var picitems = [];
         var picitems_ = rowData.picitems;
+        // if(rowData.id == '1087'){
+        //     debugger
+        // }
         if (picitems_) {
             for (var i = 0; i < picitems_.length; i++) {
-                picitems.push(this.renderPic(lbms_, picitems_[i]));
+                // 生成key
+                let key_ = rowData.id + "_" +rowData.lbms + "_" +rowData.module + "_" +rowData.remark1 + "_" +rowData.type;
+                picitems.push(this.renderPic(key_,lbms_, picitems_[i]));
             }
         }
 

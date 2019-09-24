@@ -2,7 +2,9 @@ import { Base64, crc32 } from "../util/encrypt.js";
 import * as LoginInfo from '../page/Login/LoginInfo';
 
 // var baseUrl = 'https://fxmdev.mynatapp.cc/creatorepp/';
-var baseUrl = 'http://106.52.104.159/sczx/';
+// var baseUrl = 'http://106.52.104.159/sczx/';
+var baseUrl = 'http://www.shanchuanzixun.vip/sczx/';
+
 
 //获取主题
 export function getbaseurl() {
@@ -289,6 +291,78 @@ export function deleteKehu(id) {
             })
     })
 }
+
+
+
+export function deleteDingd(id) {
+
+    return new Promise((resolve, reject) => {
+        let api = baseUrl + `app/jsp/jk/deleteKehu.jsp?id=${id}&flag=dingd`;
+        fetch(api)
+            .then((response) => response.text())
+            .then((responseText) => {
+
+                var json = JSON.parse(responseText);
+                if (json.status === '0') { // 数据请求成功
+                    resolve(json.data);
+                } else {
+                    throw new Error(json.status);
+                }
+            })
+            .catch((e) => {
+                reject(e.toString())
+            })
+    })
+}
+
+
+
+export function deletePingl(id) {
+
+    return new Promise((resolve, reject) => {
+        let api = baseUrl + `app/jsp/jk/deleteKehu.jsp?id=${id}&flag=pingl`;
+        fetch(api)
+            .then((response) => response.text())
+            .then((responseText) => {
+
+                var json = JSON.parse(responseText);
+                if (json.status === '0') { // 数据请求成功
+                    resolve(json.data);
+                } else {
+                    throw new Error(json.status);
+                }
+            })
+            .catch((e) => {
+                reject(e.toString())
+            })
+    })
+}
+
+
+
+export function deleteShouc(id) {
+
+    let user_ = LoginInfo.getUserInfo();
+
+    return new Promise((resolve, reject) => {
+        let api = baseUrl + `app/jsp/jk/deleteKehu.jsp?id=${id}&flag=shouc&appu_id=${user_.phone}`;
+        fetch(api)
+            .then((response) => response.text())
+            .then((responseText) => {
+
+                var json = JSON.parse(responseText);
+                if (json.status === '0') { // 数据请求成功
+                    resolve(json.data);
+                } else {
+                    throw new Error(json.status);
+                }
+            })
+            .catch((e) => {
+                reject(e.toString())
+            })
+    })
+}
+
 
 
 //获取客户

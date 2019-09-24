@@ -20,13 +20,13 @@ import BackToTop from '../components/BackToTop'; // 顶部返回组件
 import WebViewPage from './WebViewPage'; // webView组件
 import Search from './Search'; // 搜索组件
 import Detail from './Detail'; // 详情组件
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import Ionicons from 'react-native-vector-icons/MaterialIcons';
 import LoadingView from '../utils/LoadingView';
 import * as LoginInfo from './Login/LoginInfo';
 
 
 import { getNewsByChannel } from '../api/news';
-import { getBanners } from '../api/news';
+import { getBanners,deletePingl } from '../api/news';
 import { px2dp } from '../util/format';
 
 
@@ -268,6 +268,32 @@ export default class FindplPage extends Component {
 
     }
 
+  
+    
+    shanc(id) {
+
+
+        Alert.alert('评论删除之后无法找回，请谨慎操作，确定删除吗？', '', [
+            {
+                text: '取消', onPress: () => {
+
+                }
+            },
+            {
+                text: '确定', onPress: () => {
+                    this.setState({ isShowLoading: true });
+                    const res = deletePingl(id); // api接口 
+                    res.then((newsArr) => {
+                        // this.fetchNewsData(channelId,0, 10);
+                        this.getCurrentNews();
+                        this.setState({ isShowLoading: false });
+                    }).catch((e) => { // 错误异常处理
+                        ToastAndroid.show(e, ToastAndroid.SHORT); // androidToast
+                    })
+                }
+            },
+        ]);
+    }
 
 
 
@@ -288,6 +314,7 @@ export default class FindplPage extends Component {
         }
     }
 
+    
 
 
 
@@ -311,19 +338,25 @@ export default class FindplPage extends Component {
 
 
             return (
-                <TouchableWithoutFeedback onPress={this._goDetail.bind(this, rowData)} >
+               
 
                     <View style={styles.borderBot10}>
-                        <View style={styles.viewcol_pd10}>
+                        <View style={[styles.viewcol_pd10,{position:'relative'}]}>
                             <Image style={styles.img35} source={require('../img/huistoux.png')}></Image>
                             <View style={styles.viewcol_pd6}>
                                 <Text style={styles.text16hui}>{rowData.plr_name}</Text>
                                 <Text style={styles.text14hui_w032}>{rowData.plnr}</Text>
                                 <Text style={styles.text14hui}>{rowData.plsj}</Text>
                             </View>
+
+                            <TouchableOpacity onPress={this.shanc.bind(this,rowData.remark6)} style={{position:'absolute',right:px2dp(20),top:px2dp(8)}}>
+                                <Ionicons style={{ fontSize: px2dp(26) }} name='delete-forever' color="#969696" />
+                                </TouchableOpacity>
+                           
+
                         </View>
 
-
+                        <TouchableWithoutFeedback onPress={this._goDetail.bind(this, rowData)} >
                         <View style={styles.santuv}>
 
 
@@ -346,8 +379,10 @@ export default class FindplPage extends Component {
                             </View>
 
                         </View>
+                        </TouchableWithoutFeedback>
+
                     </View>
-                </TouchableWithoutFeedback>
+              
 
 
 
@@ -358,7 +393,7 @@ export default class FindplPage extends Component {
 
 
 
-                <TouchableWithoutFeedback onPress={this._goDetail.bind(this, rowData)} >
+               
                     <View style={styles.borderBot10}>
                         <View style={styles.viewcol_pd10}>
                             <Image style={styles.img35} source={require('../img/huistoux.png')}></Image>
@@ -367,8 +402,13 @@ export default class FindplPage extends Component {
                                 <Text style={styles.text14hui_w032}>{rowData.plnr}</Text>
                                 <Text style={styles.text14hui}>{rowData.plsj}</Text>
                             </View>
+
+                            <TouchableOpacity onPress={this.shanc.bind(this,rowData.remark6)} style={{position:'absolute',right:px2dp(20),top:px2dp(8)}}>
+                                <Ionicons style={{ fontSize: px2dp(26) }} name='delete-forever' color="#969696" />
+                                </TouchableOpacity>
                         </View>
 
+                        <TouchableWithoutFeedback onPress={this._goDetail.bind(this, rowData)} >
                         <View style={styles.onetuv}>
 
                             <View style={styles.onetuvl}>
@@ -386,16 +426,16 @@ export default class FindplPage extends Component {
                             </View>
 
                         </View>
-
+                        </TouchableWithoutFeedback>
                     </View>
 
-                </TouchableWithoutFeedback>
+               
 
 
             );
         } else if (lbms_ == '3') {
             return (
-                <TouchableWithoutFeedback onPress={this._goDetail.bind(this, rowData)} >
+               
 
                     <View style={styles.borderBot10}>
                         <View style={styles.viewcol_pd10}>
@@ -405,9 +445,12 @@ export default class FindplPage extends Component {
                                 <Text style={styles.text14hui_w032}>{rowData.plnr}</Text>
                                 <Text style={styles.text14hui}>{rowData.plsj}</Text>
                             </View>
+                            <TouchableOpacity onPress={this.shanc.bind(this,rowData.remark6)} style={{position:'absolute',right:px2dp(20),top:px2dp(8)}}>
+                                <Ionicons style={{ fontSize: px2dp(26) }} name='delete-forever' color="#969696" />
+                                </TouchableOpacity>
                         </View>
 
-
+                        <TouchableWithoutFeedback onPress={this._goDetail.bind(this, rowData)} >
                         <View style={styles.santuv}>
 
 
@@ -430,8 +473,9 @@ export default class FindplPage extends Component {
                                 <Text style={styles.wutuvprice2} numberOfLines={1}>{rowData.fbr}</Text><Text style={styles.wutuvprice2} numberOfLines={1}>{rowData.fbsj}</Text>
                             </View>
                         </View>
+                        </TouchableWithoutFeedback>
                     </View>
-                </TouchableWithoutFeedback>
+              
 
             );
         } else {  // 4或者其他的都按无图处理
@@ -439,7 +483,7 @@ export default class FindplPage extends Component {
 
 
 
-                <TouchableWithoutFeedback onPress={this._goDetail.bind(this, rowData)} >
+              
                     <View style={styles.borderBot10}>
                         <View style={styles.viewcol_pd10}>
                             <Image style={styles.img35} source={require('../img/huistoux.png')}></Image>
@@ -448,7 +492,12 @@ export default class FindplPage extends Component {
                                 <Text style={styles.text14hui_w032}>{rowData.plnr}</Text>
                                 <Text style={styles.text14hui}>{rowData.plsj}</Text>
                             </View>
+                            <TouchableOpacity onPress={this.shanc.bind(this,rowData.remark6)} style={{position:'absolute',right:px2dp(20),top:px2dp(8)}}>
+                                <Ionicons style={{ fontSize: px2dp(26) }} name='delete-forever' color="#969696" />
+                                </TouchableOpacity>
                         </View>
+
+                        <TouchableWithoutFeedback onPress={this._goDetail.bind(this, rowData)} >
                         <View style={styles.wutuv}>
 
 
@@ -467,8 +516,9 @@ export default class FindplPage extends Component {
                             </View>
 
                         </View>
+                        </TouchableWithoutFeedback>
                     </View>
-                </TouchableWithoutFeedback>
+               
             );
         }
 

@@ -94,6 +94,8 @@
 		7F84E250E12544D4AD92B765 /* libRNFetchBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 438C42339C2C4BB6ADEC4E8C /* libRNFetchBlob.a */; };
 		EA8717C995704AEABF5502A7 /* libRCTOrientation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E248456AEADC4947897F6BA2 /* libRCTOrientation.a */; };
 		36E43F96D43C450C88796319 /* libKCKeepAwake.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E6220D74521842D88316FAFE /* libKCKeepAwake.a */; };
+		76EDBC539E824221AE877E39 /* libRCTQQAPI.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A510952B28354F3D8BBB5064 /* libRCTQQAPI.a */; };
+		FDB92153F7FE4023AAB95DA8 /* libRNFS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5CE73896D7E842B0866562CD /* libRNFS.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -471,6 +473,10 @@
 		E248456AEADC4947897F6BA2 /* libRCTOrientation.a */ = {isa = PBXFileReference; name = "libRCTOrientation.a"; path = "libRCTOrientation.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		9211595F27D6426984491DC0 /* KCKeepAwake.xcodeproj */ = {isa = PBXFileReference; name = "KCKeepAwake.xcodeproj"; path = "../node_modules/react-native-keep-awake/ios/KCKeepAwake.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		E6220D74521842D88316FAFE /* libKCKeepAwake.a */ = {isa = PBXFileReference; name = "libKCKeepAwake.a"; path = "libKCKeepAwake.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		EAFD8217F177463EB3BBB5D5 /* RCTQQAPI.xcodeproj */ = {isa = PBXFileReference; name = "RCTQQAPI.xcodeproj"; path = "../node_modules/react-native-qq/ios/RCTQQAPI.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		A510952B28354F3D8BBB5064 /* libRCTQQAPI.a */ = {isa = PBXFileReference; name = "libRCTQQAPI.a"; path = "libRCTQQAPI.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		D93FC0A1069B490AA0DC5F2B /* RNFS.xcodeproj */ = {isa = PBXFileReference; name = "RNFS.xcodeproj"; path = "../node_modules/react-native-fs/RNFS.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		5CE73896D7E842B0866562CD /* libRNFS.a */ = {isa = PBXFileReference; name = "libRNFS.a"; path = "libRNFS.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -527,6 +533,8 @@
 				7F84E250E12544D4AD92B765 /* libRNFetchBlob.a in Frameworks */,
 				EA8717C995704AEABF5502A7 /* libRCTOrientation.a in Frameworks */,
 				36E43F96D43C450C88796319 /* libKCKeepAwake.a in Frameworks */,
+				76EDBC539E824221AE877E39 /* libRCTQQAPI.a in Frameworks */,
+				FDB92153F7FE4023AAB95DA8 /* libRNFS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -740,6 +748,8 @@
 				08834CB95575439B8E8D1F47 /* RNFetchBlob.xcodeproj */,
 				3AC98C0A901C4531A23FA0C2 /* RCTOrientation.xcodeproj */,
 				9211595F27D6426984491DC0 /* KCKeepAwake.xcodeproj */,
+				EAFD8217F177463EB3BBB5D5 /* RCTQQAPI.xcodeproj */,
+				D93FC0A1069B490AA0DC5F2B /* RNFS.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -1434,21 +1444,6 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1467,6 +1462,8 @@
 					"$(SRCROOT)\..\node_modules\rn-fetch-blob\ios/**",
 					"$(SRCROOT)\..\node_modules\react-native-orientation\iOS\RCTOrientation/**",
 					"$(SRCROOT)\..\node_modules\react-native-keep-awake\ios",
+					"$(SRCROOT)\..\node_modules\react-native-qq\ios\RCTQQAPI/**",
+					"$(SRCROOT)\..\node_modules\react-native-fs/**",
 				);
 			};
 			name = Debug;
@@ -1488,21 +1485,6 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1521,6 +1503,8 @@
 					"$(SRCROOT)\..\node_modules\rn-fetch-blob\ios/**",
 					"$(SRCROOT)\..\node_modules\react-native-orientation\iOS\RCTOrientation/**",
 					"$(SRCROOT)\..\node_modules\react-native-keep-awake\ios",
+					"$(SRCROOT)\..\node_modules\react-native-qq\ios\RCTQQAPI/**",
+					"$(SRCROOT)\..\node_modules\react-native-fs/**",
 				);
 			};
 			name = Release;
@@ -1557,6 +1541,8 @@
 					"$(SRCROOT)\..\node_modules\rn-fetch-blob\ios/**",
 					"$(SRCROOT)\..\node_modules\react-native-orientation\iOS\RCTOrientation/**",
 					"$(SRCROOT)\..\node_modules\react-native-keep-awake\ios",
+					"$(SRCROOT)\..\node_modules\react-native-qq\ios\RCTQQAPI/**",
+					"$(SRCROOT)\..\node_modules\react-native-fs/**",
 				);
 			};
 			name = Debug;
@@ -1592,6 +1578,8 @@
 					"$(SRCROOT)\..\node_modules\rn-fetch-blob\ios/**",
 					"$(SRCROOT)\..\node_modules\react-native-orientation\iOS\RCTOrientation/**",
 					"$(SRCROOT)\..\node_modules\react-native-keep-awake\ios",
+					"$(SRCROOT)\..\node_modules\react-native-qq\ios\RCTQQAPI/**",
+					"$(SRCROOT)\..\node_modules\react-native-fs/**",
 				);
 			};
 			name = Release;
@@ -1622,21 +1610,6 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1655,6 +1628,8 @@
 					"$(SRCROOT)\..\node_modules\rn-fetch-blob\ios/**",
 					"$(SRCROOT)\..\node_modules\react-native-orientation\iOS\RCTOrientation/**",
 					"$(SRCROOT)\..\node_modules\react-native-keep-awake\ios",
+					"$(SRCROOT)\..\node_modules\react-native-qq\ios\RCTQQAPI/**",
+					"$(SRCROOT)\..\node_modules\react-native-fs/**",
 				);
 			};
 			name = Debug;
@@ -1685,21 +1660,6 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1718,6 +1678,8 @@
 					"$(SRCROOT)\..\node_modules\rn-fetch-blob\ios/**",
 					"$(SRCROOT)\..\node_modules\react-native-orientation\iOS\RCTOrientation/**",
 					"$(SRCROOT)\..\node_modules\react-native-keep-awake\ios",
+					"$(SRCROOT)\..\node_modules\react-native-qq\ios\RCTQQAPI/**",
+					"$(SRCROOT)\..\node_modules\react-native-fs/**",
 				);
 			};
 			name = Release;
@@ -1747,21 +1709,6 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1780,6 +1727,8 @@
 					"$(SRCROOT)\..\node_modules\rn-fetch-blob\ios/**",
 					"$(SRCROOT)\..\node_modules\react-native-orientation\iOS\RCTOrientation/**",
 					"$(SRCROOT)\..\node_modules\react-native-keep-awake\ios",
+					"$(SRCROOT)\..\node_modules\react-native-qq\ios\RCTQQAPI/**",
+					"$(SRCROOT)\..\node_modules\react-native-fs/**",
 				);
 			};
 			name = Debug;
@@ -1809,21 +1758,6 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1842,6 +1776,8 @@
 					"$(SRCROOT)\..\node_modules\rn-fetch-blob\ios/**",
 					"$(SRCROOT)\..\node_modules\react-native-orientation\iOS\RCTOrientation/**",
 					"$(SRCROOT)\..\node_modules\react-native-keep-awake\ios",
+					"$(SRCROOT)\..\node_modules\react-native-qq\ios\RCTQQAPI/**",
+					"$(SRCROOT)\..\node_modules\react-native-fs/**",
 				);
 			};
 			name = Release;

@@ -67,6 +67,16 @@ export default class WebScreen extends Component {
         return <LoadingView />;
     }
 
+    onMessage( event ) {
+        // console.log( "On Message", event.nativeEvent.data );
+        var zl = event.nativeEvent.data;
+        if(zl == 'HomePage'){
+            this.props.navigation.popToTop();
+        }else{
+            this.props.navigation.navigate(zl);
+        }
+    }
+
     // 返回
     goBack() {
         if (this.props.navigation.state.params.callback) {
@@ -97,6 +107,8 @@ export default class WebScreen extends Component {
                 <WebView
                     source={{ uri: this.state.url }}
                     renderLoading={this.renderLoading}
+                    // onMessage={this.onMessage}
+                    onMessage={this.onMessage.bind(this)}
                     automaticallyAdjustContentInsets={false}
                     style={{ width: width, height: height, backgroundColor: '#f3f3f3', }}
                     javaScriptEnabled
@@ -104,13 +116,14 @@ export default class WebScreen extends Component {
                     startInLoadingState
                     scalesPageToFit={true}
                     decelerationRate="normal"
-                    startInLoadingState
+                    
+                    // startInLoadingState
                     onShouldStartLoadWithRequest={() => {
                         const shouldStartLoad = true;
                         return shouldStartLoad;
                     }}
                     // onNavigationStateChange={this.onNavigationStateChange}
-                    renderLoading={this.renderLoading}
+                    // renderLoading={this.renderLoading}
 
 
                 />

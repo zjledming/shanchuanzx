@@ -16,8 +16,9 @@ import {
     TextInput,
     ToastAndroid,
     TouchableOpacity,
+    TouchableWithoutFeedback,
     StatusBar,
-    ScrollView, Dimensions, Image,
+    ScrollView, Dimensions, Image, ImageBackground,
     Keyboard
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -32,12 +33,16 @@ import * as LoginInfo from '../page/Login/LoginInfo';
 import ToastUtil from "../utils/ToastUtil";
 import NavBar from '../common/NavBar';
 import BackgroundPage from '../common/BackgroundPage';
-import { getZwByUuid, getBtByUuid, getShoucflag, shouc, getplnum, dojifen,getbaseurl } from '../api/news';
+import { getZwByUuid, getBtByUuid, getShoucflag, shouc, getplnum, dojifen, getbaseurl } from '../api/news';
 import { px2dp, getdthei, isSpace, checkdayu } from '../util/format';
 import { zdp, zsp } from "../utils/ScreenUtil";
 import Video from 'react-native-af-video-player'; // 视频组件
 
 import SQLite from "../utils/SQLite";
+import RNFS from 'react-native-fs';
+import EZSideMenud from 'react-native-ezsidemenu';
+
+
 var sqLite = new SQLite();
 var db;
 
@@ -49,6 +54,9 @@ var WIDTH05 = DT_WIDTH * 0.5;
 // 计时器
 var count = 0;
 // var that;
+
+// jobId
+var jobId = -1;
 
 var baseUrl = getbaseurl();
 
@@ -86,14 +94,15 @@ export default class Detail extends BackHandleComponent {
             huancflag: false,
             plnum: 0,
             pled: false,
-            isShowCard: false
+            isShowCard: false,
+            progressNum: 0,
         }
 
     }
 
     componentWillMount() {
-
         // ToastUtil.showLoading();
+
 
         //开启数据库
         if (!db) {
@@ -110,11 +119,40 @@ export default class Detail extends BackHandleComponent {
         //建子表
         sqLite.createNewobjTableBefore();
 
+        this.gethuancflag();
+
+        //监听分享状态
+        WeChat.addListener(
+            'SendMessageToWX.Resp',
+            (response) => {
+                // ToastAndroid.show('分享'+response.errCode, ToastAndroid.SHORT); // androidToast
+                if (parseInt(response.errCode) === 0) {
+                    // toastShort('分享成功');
+                    // ToastAndroid.show('分享成功', ToastAndroid.SHORT); // androidToast
+                    // 分享成功，积1分
+                    // 先执行请求，再提示 ，直接用收藏接口算了吧
+                    const res = shouc(this.state.user.phone, this.state.user.realname, this.state.btData.id, this.state.btData.title, 'fx', this.state.user.ssqy); // api接口 
+                    res.then((newsArr) => {
+                        //this.setState({ shoucflag: true });
+
+                    }).catch((e) => { // 错误异常处理
+                        // ToastAndroid.show(e, ToastAndroid.SHORT); // androidToast
+                    })
+
+                } else {
+                    // toastShort('分享失败');
+                    // ToastAndroid.show('分享失败', ToastAndroid.SHORT); // androidToast
+                }
+            }
+        );
+
+
     }
 
     compennetDidUnmount() {
         //关闭数据库
         sqLite.close();
+
     }
 
 
@@ -124,6 +162,7 @@ export default class Detail extends BackHandleComponent {
         // timeout = setTimeout(function () {
         //     timer = setInterval(that.myTimer(), 5000);
         // }, 10000)
+
         this.timer = setTimeout(
             () => {
                 // timer = setInterval(that.myTimer(), 5000);
@@ -137,7 +176,7 @@ export default class Detail extends BackHandleComponent {
             10000
         );
 
-        this.initpage();
+        // this.initpage();
         this.getBtByUuid(); // 获取标题数据
         this.getZwByUuid(); // 获取正文数据
 
@@ -146,12 +185,24 @@ export default class Detail extends BackHandleComponent {
     componentWillUnmount() {
         this.timer && clearTimeout(this.timer);
         this.inter && clearInterval(this.inter);
+        WeChat.removeAllListeners();
+        this.qxhuanc();
     }
 
 
 
     /*************************************** 自定义函数 ***************************************/
 
+
+    linkdz() {
+        let url_ = this.state.btData.ljdz;
+        this.props.navigation.navigate('WebScreen', {
+            url: url_,
+            name: this.state.btData.title,
+            wlflag: 'Y'
+        });
+
+    }
 
 
     myTimer() {
@@ -254,9 +305,9 @@ export default class Detail extends BackHandleComponent {
     }
 
 
-    // 获取标题数据
+    // 获取标题数据 
+    // bug - 获取数量得时候 bt数据还没加载完成 所以只能放到bt数据加载完成得回调函数里边去
     getplnum() {
-
         const res = getplnum(this.state.btData.id, this.state.isLogin ? this.state.user.phone : '0'); // api接口
         res.then((newsObj) => {
 
@@ -313,6 +364,7 @@ export default class Detail extends BackHandleComponent {
     }
 
     initpage() {
+
         if (this.state.isLogin) {
             this.getShoucflag();
             this.getplnum();
@@ -416,10 +468,33 @@ export default class Detail extends BackHandleComponent {
 
 
     fenxiang() {
-        //  this.props.navigation.navigate('Share');
-        this.setState({
-            isShowCard: true
-        });
+
+
+        // 收藏 先判断登录 
+        if (this.state.isLogin) {
+
+            //  this.props.navigation.navigate('Share');
+            this.setState({
+                isShowCard: true
+            });
+
+        } else {
+            this.props.navigation.navigate('LoginIndex',
+                {
+                    // info: info,
+                    callback: ((info) => { //回调函数
+                        // 回调了就是登录成功了
+                        this.setState({
+                            isLogin: true,
+                            user: info,
+                        });
+                        this.initpage();
+                    })
+                }
+
+            );
+
+        }
     }
 
 
@@ -472,10 +547,11 @@ export default class Detail extends BackHandleComponent {
 
         // 已经缓存过的，再次点击缓存无效
         if (this.state.huancflag == true) {
+            ToastUtil.showShort('当前文章已经缓存，请到我的 - 我的缓存查看！');
             return;
         }
         // 正在缓存中
-        ToastUtil.showLoading('缓存中');
+        // ToastUtil.showLoading('缓存中');
 
         var uuid = this.params.uuid;
 
@@ -515,9 +591,41 @@ export default class Detail extends BackHandleComponent {
         let zwData = this.state.zwData;
         let len = zwData.length;
 
+        let toLoadPath = RNFS.DocumentDirectoryPath;
+
+
+        // 读取文件
+        // get a list of files and directories in the main bundle
+        // RNFS.readDir(toLoadPath) // On Android, use "RNFS.DocumentDirectoryPath" (MainBundlePath is not defined)
+        //     .then((result) => {
+        //         console.log('GOT RESULT', result);
+
+        //         // stat the first file
+        //         return Promise.all([RNFS.stat(result[0].path), result[0].path]);
+        //     })
+        //     .then((statResult) => {
+        //         if (statResult[0].isFile()) {
+        //             // if we have a file, read it
+        //             return RNFS.readFile(statResult[1], 'utf8');
+        //         }
+
+        //         return 'no file';
+        //     })
+        //     .then((contents) => {
+        //         // log the file contents
+        //         console.log(contents);
+        //     })
+        //     .catch((err) => {
+        //         console.log(err.message, err.code);
+        //     });
+
+
+        let hassp = false;
         db.transaction((tx) => {
             for (let i = 0; i < len; i++) {
                 var tempobj = zwData[i];
+
+                // 不管是文本还是音视频，都需要先插入到sqlit
                 let sql = "INSERT INTO PUBS(id,fileextend,heigth,hwbl,pxh,spxh,treenodeid,treenodename,type,uuid,width,xpxh,zwnr,remark1,remark2,remark3,remark4,remark5,remark6)" +
                     "values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
                 tx.executeSql(sql, [tempobj.id, tempobj.fileextend, tempobj.heigth, tempobj.hwbl, tempobj.pxh, tempobj.spxh, tempobj.treenodeid, tempobj.treenodename, tempobj.type, tempobj.uuid, tempobj.width, tempobj.xpxh, tempobj.zwnr, tempobj.remark1, tempobj.remark2, tempobj.remark3, tempobj.remark4, tempobj.remark5, tempobj.remark6], () => {
@@ -525,17 +633,90 @@ export default class Detail extends BackHandleComponent {
                     console.log(err);
                 }
                 );
+
+
+                // 如果至少文本的话，缓存很快的，不需要loading提示，最后提示一下成功就可以了
+                // 1.如果是文本，存入sqlit，如果是视频和mp3，存入本地文件
+                if (tempobj.fileextend == ".mp4" || tempobj.fileextend == ".mp3") {
+                    hassp = true;
+                    // 显示load】
+                    this.refs.detailxx.open();
+
+                    // zwnr ：文件地址 "https://fxmdev.mynatapp.cc/savepic/caa305cce069427db01ea24d22eaa60a.mp4"
+                    // uuid："a5a9f2fd16ea46bc8b031f62317af3e4"
+                    //remark1： "a5a9f2fd16ea46bc8b031f62317af3e4_7500"
+                    //pxh："7500"
+
+                    // 音频
+                    const downloadDest = toLoadPath + tempobj.zwnr.split('savepic')[1];
+                    // http://wvoice.spriteapp.cn/voice/2015/0902/55e6fc6e4f7b9.mp3
+                    const formUrl = tempobj.zwnr;
+
+                    const options = {
+                        fromUrl: formUrl,
+                        toFile: downloadDest,
+                        progressDivider: 1,
+                        background: true,
+                        begin: (res) => {
+
+                            jobId = res.jobId;
+                            // console.log('begin', res);
+                            // console.log('contentLength:', res.contentLength / 1024 / 1024, 'M');
+                        },
+                        progress: (res) => {
+
+
+                            let pro = res.bytesWritten / res.contentLength;
+                            pro = Math.round(pro * 100 * 100) / 100;
+                            // ToastUtil.showShort('progress:' + pro);
+
+                            this.setState({
+                                progressNum: pro,
+                            });
+
+                            // if (pro == 100) {
+                            //     this.refs.detailxx.close();
+                            // }
+                        }
+                    };
+                    try {
+
+                        const ret = RNFS.downloadFile(options);
+                        ret.promise.then(res => {
+                            // console.log('success', res);
+                            // console.log('file://' + downloadDest);
+                            // ToastUtil.showShort('success');
+                            // 回写状态
+                            this.setState({ // 设置状态
+                                huancflag: true
+                            });
+                            this.refs.detailxx.close();
+
+                        }).catch(err => {
+                            console.log('err', err);
+                        });
+                    }
+                    catch (e) {
+                        console.log(error);
+                    }
+
+                }
             }
-            // 回写状态
-            this.setState({ // 设置状态
-                huancflag: true
-            });
-            // 关闭加载提示，显示成功标识
-            ToastUtil.hideLoading();
-            ToastUtil.showShort('缓存成功');
+
+            if (!hassp) {
+
+                // 回写状态
+                this.setState({ // 设置状态
+                    huancflag: true
+                });
+                // 关闭加载提示，显示成功标识
+                // ToastUtil.hideLoading();
+                ToastUtil.showShort('缓存成功');
+            }
+
         }, (error) => {
             console.log(error);
-            ToastUtil.hideLoading();
+            // ToastUtil.hideLoading();
             ToastUtil.showShort('缓存失败，请稍候再试');
         }, () => {
             console.log('success');
@@ -599,12 +780,12 @@ export default class Detail extends BackHandleComponent {
                                         {
                                             title: this.state.btData.title,
                                             description: this.state.btData.jianjie,
-                                            thumbImage: baseUrl+'app/images/logo.png',
+                                            thumbImage: baseUrl + 'app/images/logo.png',
                                             type: 'news',
-                                            webpageUrl: baseUrl+'app/jsp/shanc/xq.jsp?uuid='+uuid
+                                            webpageUrl: baseUrl + 'app/jsp/shanc/xq.jsp?uuid=' + uuid
                                         }
-                                        
-                                        )
+
+                                    )
                                         .catch((error) => {
                                             ToastUtil.showShort(error.message);
                                         });
@@ -621,10 +802,10 @@ export default class Detail extends BackHandleComponent {
                                 if (isInstalled) {
                                     WeChat.shareToTimeline({
                                         title: this.state.btData.title,
-                                            description: this.state.btData.jianjie,
-                                            thumbImage: baseUrl+'app/images/logo.png',
-                                            type: 'news',
-                                            webpageUrl: baseUrl+'app/jsp/shanc/xq.jsp?uuid='+uuid
+                                        description: this.state.btData.jianjie,
+                                        thumbImage: baseUrl + 'app/images/logo.png',
+                                        type: 'news',
+                                        webpageUrl: baseUrl + 'app/jsp/shanc/xq.jsp?uuid=' + uuid
                                     })
                                         .catch((error) => {
                                             ToastUtil.showShort(error.message);
@@ -637,49 +818,99 @@ export default class Detail extends BackHandleComponent {
                     })}
 
                     {this.getButtonCardItem('QQ', 'qq', '#1c92ec', () => {
-                        WeChat.isWXAppInstalled()
-                            .then((isInstalled) => {
-                                if (isInstalled) {
-                                    WeChat.shareToTimeline({
-                                        title: '微信朋友圈测试链接',
-                                        description: '分享自:江清清的技术专栏(www.lcode.org)',
-                                        thumbImage: 'http://mta.zttit.com:8080/images/ZTT_1404756641470_image.jpg',
-                                        type: 'news',
-                                        webpageUrl: 'http://www.lcode.org'
-                                    })
-                                        .catch((error) => {
-                                            ToastUtil.showShort(error.message);
-                                        });
-                                } else {
-                                    ToastUtil.showShort('没有安装微信软件，请您安装微信之后再试');
-                                }
-                            });
-                        console.log('dianji');
+                        // WeChat.isWXAppInstalled()
+                        //     .then((isInstalled) => {
+                        //         if (isInstalled) {
+                        //             WeChat.shareToTimeline({
+                        //                 title: '微信朋友圈测试链接',
+                        //                 description: '分享自:江清清的技术专栏(www.lcode.org)',
+                        //                 thumbImage: 'http://mta.zttit.com:8080/images/ZTT_1404756641470_image.jpg',
+                        //                 type: 'news',
+                        //                 webpageUrl: 'http://www.lcode.org'
+                        //             })
+                        //                 .catch((error) => {
+                        //                     ToastUtil.showShort(error.message);
+                        //                 });
+                        //         } else {
+                        //             ToastUtil.showShort('没有安装微信软件，请您安装微信之后再试');
+                        //         }
+                        //     });
+                        // console.log('dianji');
                     })}
 
                     {this.getButtonCardItem('QQ空间', 'star', '#ffce00', () => {
-                        WeChat.isWXAppInstalled()
-                            .then((isInstalled) => {
-                                if (isInstalled) {
-                                    WeChat.shareToTimeline({
-                                        title: '微信朋友圈测试链接',
-                                        description: '分享自:江清清的技术专栏(www.lcode.org)',
-                                        thumbImage: 'http://mta.zttit.com:8080/images/ZTT_1404756641470_image.jpg',
-                                        type: 'news',
-                                        webpageUrl: 'http://www.lcode.org'
-                                    })
-                                        .catch((error) => {
-                                            ToastUtil.showShort(error.message);
-                                        });
-                                } else {
-                                    ToastUtil.showShort('没有安装微信软件，请您安装微信之后再试');
-                                }
-                            });
-                        console.log('dianji');
+                        // WeChat.isWXAppInstalled()
+                        //     .then((isInstalled) => {
+                        //         if (isInstalled) {
+                        //             WeChat.shareToTimeline({
+                        //                 title: '微信朋友圈测试链接',
+                        //                 description: '分享自:江清清的技术专栏(www.lcode.org)',
+                        //                 thumbImage: 'http://mta.zttit.com:8080/images/ZTT_1404756641470_image.jpg',
+                        //                 type: 'news',
+                        //                 webpageUrl: 'http://www.lcode.org'
+                        //             })
+                        //                 .catch((error) => {
+                        //                     ToastUtil.showShort(error.message);
+                        //                 });
+                        //         } else {
+                        //             ToastUtil.showShort('没有安装微信软件，请您安装微信之后再试');
+                        //         }
+                        //     });
+                        // console.log('dianji');
                     })}
                 </Card>
             </Content>);
     };
+
+    // 取消下载
+    qxhuanc() {
+
+        try {
+            // ToastUtil.showShort('qxhuanc：' + jobId);
+            if (jobId > 0) {
+                RNFS.stopDownload(jobId);
+            }
+            if (this.refs.detailxx.state.isOpen == true) {
+                this.refs.detailxx.close();
+            }
+        } catch (e) {
+        }
+    }
+
+
+
+    detailxx() {
+
+        return (
+
+            <ImageBackground source={require('../img/xzbj.png')} style={{ width: WINDOW_WIDTH * 0.7, height: WINDOW_WIDTH * 0.7 * 1.58, marginTop: px2dp(100), marginLeft: WINDOW_WIDTH * 0.3 * 0.5 }}>
+                <View style={{
+                    justifyContent: 'flex-start',
+                    alignItems: 'center',
+                }} >
+
+                    <Text style={{ marginTop: px2dp(150), color: '#333333', fontSize: px2dp(20), fontWeight: 'bold' }}>{this.state.progressNum}%</Text>
+
+                    <Text style={{ color: '#999999', fontSize: px2dp(16), marginTop: px2dp(3) }}>正在努力下载，请稍等...</Text>
+
+                    <TouchableWithoutFeedback onPress={this.qxhuanc.bind(this)}>
+                        <ImageBackground source={require('../img/dlal.png')} style={{
+                            width: WINDOW_WIDTH * 0.5, height: WINDOW_WIDTH * 0.5 * 0.21, marginTop: px2dp(60), justifyContent: 'center',
+                            alignItems: 'center',
+                        }} >
+                            <Text onPress={this.qxhuanc.bind(this)} style={{ color: '#fff', fontSize: px2dp(16) }}>取消</Text>
+                        </ImageBackground>
+                    </TouchableWithoutFeedback>
+
+                    <Text style={{ color: '#ff8763', fontSize: px2dp(13), marginTop: px2dp(5) }}>取消缓存数据将会丢失</Text>
+
+                </View>
+
+            </ImageBackground>
+
+        );
+
+    }
 
 
 
@@ -687,16 +918,31 @@ export default class Detail extends BackHandleComponent {
     render() {
         return (
             <View style={{ flex: 1, }}>
-                <NavBar
-                    title="详情"
-                    leftIcon="md-arrow-back"
-                    leftPress={this.back.bind(this)}
-                />
-                {/* <StatusBar
+
+
+
+                <EZSideMenud
+                    menu={this.detailxx()}
+                    ref="detailxx"
+                    type={EZSideMenud.type.Overlay}
+                    direction={EZSideMenud.direction.Right}
+                    panGestureEnabled={false}
+                    width={WINDOW_WIDTH}
+                    onMenuStateChaned={(isOpen) => {
+                        // this.setState({ isOpen }) 
+                    }}
+                >
+
+                    <NavBar
+                        title="详情"
+                        leftIcon="md-arrow-back"
+                        leftPress={this.back.bind(this)}
+                    />
+                    {/* <StatusBar
                     barStyle={'dark-content'}
                     backgroundColor={'#ffffff'}
                 /> */}
-                {/* <View style={styles.searchBar}>
+                    {/* <View style={styles.searchBar}>
                     <View style={styles.backIconBox}>
                         <Icons style={styles.backIcon} name='arrow-left' onPress={() => {
                              this.props.navigation.goBack();
@@ -711,59 +957,61 @@ export default class Detail extends BackHandleComponent {
 
 
 
-                <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
 
 
-                    <View style={styles.titleview}>
-                        <Text style={styles.begintext}>{this.state.btData.title}</Text>
-                    </View>
+                    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
 
 
-                    <View style={styles.rowvstartend}>
-
-                        <View style={styles.onetuvlb}>
-                            <Text style={styles.wutuvprice1} numberOfLines={1}>{this.state.btData.fbr}</Text>
-                            <Text style={styles.wutuvprice2} numberOfLines={1}>{this.state.btData.fbsj}</Text>
+                        <View style={styles.titleview}>
+                            <Text style={styles.begintext}>{this.state.btData.title}</Text>
                         </View>
+
+
+                        <View style={styles.rowvstartend}>
+
+                            <View style={styles.onetuvlb}>
+                                <Text style={styles.wutuvprice1} numberOfLines={1}>{this.state.btData.fbr}</Text>
+                                <Text style={styles.wutuvprice2} numberOfLines={1}>{this.state.btData.fbsj}</Text>
+                            </View>
+                            {
+                                !isSpace(this.state.btData.remark2) ?
+                                    <View style={styles.onetuvlb1}>
+                                        <Text style={styles.wutuvtag1} numberOfLines={1}>{this.state.btData.remark2}</Text>
+                                    </View> :
+                                    <View />
+
+                            }
+                        </View>
+
                         {
-                            !isSpace(this.state.btData.remark2) ?
-                                <View style={styles.onetuvlb1}>
-                                    <Text style={styles.wutuvtag1} numberOfLines={1}>{this.state.btData.remark2}</Text>
+                            !isSpace(this.state.btData.jianjie) ?
+                                <View style={styles.jjview}>
+                                    <Text style={styles.jjtext}>{this.state.btData.jianjie}</Text>
                                 </View> :
                                 <View />
-
                         }
-                    </View>
 
-                    {
-                        !isSpace(this.state.btData.jianjie) ?
-                            <View style={styles.jjview}>
-                                <Text style={styles.jjtext}>{this.state.btData.jianjie}</Text>
-                            </View> :
-                            <View />
-                    }
+                        <View style={styles.zwview}>
 
-                    <View style={styles.zwview}>
-
-                        {/* <Videoutil /> */}
+                            {/* <Videoutil /> */}
 
 
 
 
-                        {
-                            this.state.zwData.map((item, index) => {
-                                if (item.type == '1') {
-                                    return (
-                                        <Text key={item.id} style={styles.zwtext}>{item.zwnr}</Text>
-                                    )
-                                } else if (item.type == '2') {
-                                    return (
-                                        <Image key={item.id} style={{ height: getdthei(item.hwbl), width: DT_WIDTH, }} source={{ uri: item.zwnr }}></Image>
-                                    )
-                                } else if (item.type == '3') {
-                                    return (
-                                        <View key={item.id} style={styles.videoItem}>
-                                            {/* <ArsVideo
+                            {
+                                this.state.zwData.map((item, index) => {
+                                    if (item.type == '1') {
+                                        return (
+                                            <Text key={item.id} style={styles.zwtext}>{item.zwnr}</Text>
+                                        )
+                                    } else if (item.type == '2') {
+                                        return (
+                                            <Image key={item.id} style={{ height: getdthei(item.hwbl), width: DT_WIDTH, }} source={{ uri: item.zwnr }}></Image>
+                                        )
+                                    } else if (item.type == '3') {
+                                        return (
+                                            <View key={item.id} style={styles.videoItem}>
+                                                {/* <ArsVideo
                                                 // source={item.video_url}
                                                 source={this.getVideoUrl(item.zwnr)}
                                                 img={this.state.btData.headpic}
@@ -772,96 +1020,115 @@ export default class Detail extends BackHandleComponent {
                                                 height={getdthei(this.state.btData.hwbl)}
                                             /> */}
 
-                                            <Video
-                                                autoPlay={true}
-                                                // loop={true}
-                                                style={styles.videocontent}
-                                                fullScreenOnly={false} // 只在全屏下播放
-                                                inlineOnly={true}
-                                                url={this.getVideoUrl(item.zwnr)}
-                                                title={this.state.btData.title}
-                                                logo={this.state.btData.headpic}
-                                                placeholder={this.state.btData.headpic}
-                                                // rotateToFullScreen
-                                                hideFullScreenControl={true}
-                                            />
+                                                <Video
+                                                    autoPlay={false}
+                                                    // loop={true}
+                                                    style={styles.videocontent}
+                                                    fullScreenOnly={false} // 只在全屏下播放
+                                                    inlineOnly={true}
+                                                    url={item.zwnr}
+                                                    title={this.state.btData.title}
+                                                    logo={this.state.btData.headpic}
+                                                    placeholder={this.state.btData.headpic}
+                                                    // rotateToFullScreen
+                                                    hideFullScreenControl={true}
+                                                />
 
 
-                                            {/* <Videoutil /> */}
+                                                {/* <Videoutil /> */}
 
-                                            {/* <VideoPlayScreen/> */}
+                                                {/* <VideoPlayScreen/> */}
 
 
-                                            {/* <TouchableOpacity activeOpacity={0.8} style={styles.videoTips}>
+                                                {/* <TouchableOpacity activeOpacity={0.8} style={styles.videoTips}>
 
                                             </TouchableOpacity> */}
-                                        </View>
-                                    )
+                                            </View>
+                                        )
+                                    }
+
+                                })
+                            }
+
+                        </View>
+
+                    </ScrollView>
+
+
+                    <View style={styles.footBar}>
+
+
+                        <TouchableOpacity onPress={this.pingl.bind(this)} >
+                            <View style={styles.searchBox}>
+                                <Icons style={styles.searchIcon} name='pencil' />
+                                <Text style={styles.searchInput}>说点什么...</Text>
+                            </View>
+                        </TouchableOpacity>
+
+
+                        <TouchableOpacity onPress={this.pllist.bind(this)} style={{ position: 'relative' }} >
+                            <View style={styles.gongneng1}>
+                                <Icon style={styles.gongnengIcon} name='textsms' />
+                                <Text style={styles.numtag}>{this.state.plnum}</Text>
+                            </View>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={this.shouc.bind(this)} >
+                            <View style={styles.gongneng}>
+                                {
+                                    !isSpace(this.state.shoucflag) ?
+                                        <Icon style={{ fontSize: px2dp(23) }} name='star' color="#e70012" /> :
+                                        <Icon style={{ fontSize: px2dp(23) }} name='star' />
+                                }
+                            </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={this.huanc.bind(this)} >
+                            <View style={styles.gongneng}>
+                                {
+                                    !isSpace(this.state.huancflag) ?
+                                        <Icon style={{ fontSize: px2dp(22) }} name='archive' color="#e70012" /> :
+                                        <Icon style={{ fontSize: px2dp(22) }} name='archive' />
                                 }
 
-                            })
+                            </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={this.fenxiang.bind(this)} >
+                            <View style={styles.gongneng}>
+                                <Iconfonts style={styles.gongnengIcon} name='share-alt-square' />
+                            </View>
+                        </TouchableOpacity>
+                        {/* <Text onPress={this.searchWords.bind(this, this.state.text)} style={styles.searchBtn}>搜索</Text> */}
+
+                        {
+                            !isSpace(this.state.btData.ljdz) ?
+
+                                <TouchableOpacity onPress={this.linkdz.bind(this)} >
+                                    <View style={styles.gongneng}>
+                                        <Iconfonts style={styles.gongnengIcon} name='link' />
+                                    </View>
+                                </TouchableOpacity>
+                                :
+                                null
                         }
+
 
                     </View>
 
-                </ScrollView>
-
-
-                <View style={styles.footBar}>
-
-                    {/* 搜索框 */}
-                    <TouchableOpacity onPress={this.pingl.bind(this)} >
-                        <View style={styles.searchBox}>
-                            <Icons style={styles.searchIcon} name='pencil' />
-                            <Text style={styles.searchInput}>说点什么...</Text>
-                        </View>
-                    </TouchableOpacity>
-                    {/* 功能区：评论bubble 收藏 缓存 分享 */}
-                    <TouchableOpacity onPress={this.pllist.bind(this)} style={{ position: 'relative' }} >
-                        <View style={styles.gongneng1}>
-                            <Icon style={styles.gongnengIcon} name='textsms' />
-                            <Text style={styles.numtag}>{this.state.plnum}</Text>
-                        </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={this.shouc.bind(this)} >
-                        <View style={styles.gongneng}>
-                            {
-                                !isSpace(this.state.shoucflag) ?
-                                    <Icon style={{ fontSize: px2dp(23) }} name='star' color="#e70012" /> :
-                                    <Icon style={{ fontSize: px2dp(23) }} name='star' />
-                            }
-                        </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={this.huanc.bind(this)} >
-                        <View style={styles.gongneng}>
-                            {
-                                !isSpace(this.state.huancflag) ?
-                                    <Icon style={{ fontSize: px2dp(22) }} name='archive' color="#e70012" /> :
-                                    <Icon style={{ fontSize: px2dp(22) }} name='archive' />
-                            }
-
-                        </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={this.fenxiang.bind(this)} >
-                        <View style={styles.gongneng}>
-                            <Iconfonts style={styles.gongnengIcon} name='share-alt-square' />
-                        </View>
-                    </TouchableOpacity>
-                    {/* <Text onPress={this.searchWords.bind(this, this.state.text)} style={styles.searchBtn}>搜索</Text> */}
-                </View>
 
 
 
-                {this.state.isShowCard ? <BackgroundPage
-                    backgroundColor={this.state.isShowCard ? '#e4e1e177' : 'transparent'}
-                    onPress={() => {
-                        this.setState({
-                            isShowCard: false
-                        });
-                    }} /> : null}
+                    {this.state.isShowCard ? <BackgroundPage
+                        backgroundColor={this.state.isShowCard ? '#e4e1e177' : 'transparent'}
+                        onPress={() => {
+                            this.setState({
+                                isShowCard: false
+                            });
+                        }} /> : null}
 
-                {this.state.isShowCard ? this.getCardView() : null}
+                    {this.state.isShowCard ? this.getCardView() : null}
 
+
+                </EZSideMenud>
             </View>
         )
     }
@@ -888,8 +1155,20 @@ const styles = StyleSheet.create({
         borderTopColor: '#f5f5f3',
         alignItems: 'center',
         justifyContent: 'space-between',
+        paddingHorizontal: px2dp(10),
+    },
+
+    footBar1: {
+        flexDirection: 'row',
+        height: px2dp(50),
+        backgroundColor: '#fff',
+        borderTopWidth: px2dp(1),
+        borderTopColor: '#f5f5f3',
+        alignItems: 'center',
+        justifyContent: 'center',
         paddingHorizontal: px2dp(20),
     },
+
 
     rowvstartend: {
         flexDirection: 'row',
@@ -932,6 +1211,9 @@ const styles = StyleSheet.create({
         fontSize: px2dp(12)
     },
     gongneng: {
+    },
+    gongneng2: {
+        marginHorizontal: px2dp(20),
     },
     gongneng1: {
         position: 'relative',

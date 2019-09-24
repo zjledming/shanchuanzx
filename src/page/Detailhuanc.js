@@ -18,11 +18,12 @@ import {
     TouchableOpacity,
     StatusBar,
     ScrollView, Dimensions, Image,
-    Keyboard
+    Keyboard,Platform
 } from 'react-native';
 import Iconfonts from 'react-native-vector-icons/FontAwesome';
 import BackHandleComponent from '../components/BackHandleComponent';
-import ArsVideo from '../components/ArsVideo';
+// import ArsVideo from '../components/ArsVideo';
+import Video from 'react-native-af-video-player'; // 视频组件
 import * as LoginInfo from '../page/Login/LoginInfo';
 import ToastUtil from "../utils/ToastUtil";
 import NavBar from '../common/NavBar';
@@ -30,6 +31,7 @@ import { getZwByUuid, getBtByUuid, getShoucflag, shouc, getplnum, dojifen } from
 import { px2dp, getdthei, isSpace, checkdayu } from '../util/format';
 
 import SQLite from "../utils/SQLite";
+import RNFS from 'react-native-fs';
 var sqLite = new SQLite();
 var db;
 
@@ -58,7 +60,7 @@ export default class Detailhuanc extends BackHandleComponent {
             isLogin: isLogin,
             user: user_,
             shoucflag: false,
-            huancflag: false,  
+            huancflag: false,
             plnum: 0,
             pled: false,
             isShowCard: false
@@ -199,6 +201,8 @@ export default class Detailhuanc extends BackHandleComponent {
 
     // 获取正文数据
     getZwByUuid() {
+        var toLoadPath = RNFS.DocumentDirectoryPath;
+        // let toLoadPath = Platform.OS === 'ios'? RNFS.LibraryDirectoryPath:RNFS.ExternalDirectoryPath;
         try {
             //查询
             db.transaction((tx) => {
@@ -206,11 +210,17 @@ export default class Detailhuanc extends BackHandleComponent {
                     var newsArr = [];
                     var len = results.rows.length;
 
-                    if (len > 0) {
-                        for (let i = 0; i < len; i++) {
-                            newsArr.push(results.rows.item(i));
+                    for (let i = 0; i < len; i++) {
+                        let tempobj = results.rows.item(i);
+                        if (tempobj.fileextend == ".mp4" || tempobj.fileextend == ".mp3") {
+                            // 替换成本地地址
+                            let tempstr  = tempobj.zwnr;
+                            let downloadDest = toLoadPath + tempstr.split('savepic')[1];
+                            tempobj.zwnr = 'file:///' + downloadDest;
+                            newsArr.push(tempobj);
                         }
                     }
+
                     this.setState({ // 设置状态
                         zwData: newsArr
                     });
@@ -572,7 +582,7 @@ export default class Detailhuanc extends BackHandleComponent {
                                 } else if (item.type == '3') {
                                     return (
                                         <View key={item.id} style={styles.videoItem}>
-                                            <ArsVideo
+                                            {/* <ArsVideo
                                                 // source={item.video_url}
                                                 source={this.getVideoUrl(item.zwnr)}
                                                 img={this.state.btData.headpic}
@@ -582,7 +592,23 @@ export default class Detailhuanc extends BackHandleComponent {
                                             />
                                             <TouchableOpacity activeOpacity={0.8} style={styles.videoTips}>
 
-                                            </TouchableOpacity>
+                                            </TouchableOpacity> */}
+
+                                            <Video
+                                                autoPlay={false}
+                                                // loop={true}
+                                                style={styles.videocontent}
+                                                fullScreenOnly={false} // 只在全屏下播放
+                                                inlineOnly={true}
+                                                url={item.zwnr}
+                                                title={this.state.btData.title}
+                                                logo={this.state.btData.headpic}
+                                                placeholder={this.state.btData.headpic}
+                                                // rotateToFullScreen
+                                                hideFullScreenControl={true}
+                                            />
+
+
                                         </View>
                                     )
                                 }
@@ -910,6 +936,10 @@ const styles = StyleSheet.create({
 
 
 
+    videocontent: {
+        width: '100%',
+        height: width
+    },
 
 
 })

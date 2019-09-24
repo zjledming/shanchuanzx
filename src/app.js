@@ -43,6 +43,7 @@ import YfzxPage from "./page/YfzxPage";
 import ZxzxPage from "./page/ZxzxPage";
 import KehuPage from "./page/KehuPage";
 import DingdPage from "./page/DingdPage";
+import Dingdxq from "./page/Dingdxq";
 import KehuxzPage from "./page/KehuxzPage";
 import WebScreen from "./page/Task/WebScreen";
 import TxsxPage from "./page/TxsxPage";
@@ -92,6 +93,7 @@ const App = StackNavigator({
     KehuPage: { screen: KehuPage },
     TxsxPage: { screen: TxsxPage },
     DingdPage: { screen: DingdPage },
+    Dingdxq: { screen: Dingdxq },
     KehuxzPage: { screen: KehuxzPage },
     Main: {
         screen: TabNav,

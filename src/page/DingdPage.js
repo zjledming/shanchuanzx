@@ -29,7 +29,7 @@ import { isSpace } from '../util/format';
 
 
 
-import { selectDingdanList, deleteKehu } from '../api/news';
+import { selectDingdanList, deleteDingd } from '../api/news';
 import { px2dp } from '../util/format';
 
 
@@ -315,7 +315,7 @@ export default class DingdPage extends Component {
             {
                 text: '确定', onPress: () => {
                     this.setState({ isShowLoading: true });
-                    const res = deleteKehu(id); // api接口 
+                    const res = deleteDingd(id); // api接口 
                     res.then((newsArr) => {
                         this.fetchNewsData(0, 10);
                         this.setState({ isShowLoading: false });
@@ -329,27 +329,33 @@ export default class DingdPage extends Component {
 
 
 
-    xgkehu(id) {
+    xgkehu(khinfo) {
 
-        let url_ = "app/jsp/shanc/khedit.jsp?id=" + id;
+        let zffs = khinfo.remark1;
+        // 跳转到扫码界面  + "&kc_name=" + this.params.kcinfo.title 
+        // let url_ = "app/jsp/shanc/scewm.jsp?kh_id=" + khinfo.id+ "&kh_name=" + khinfo.realname+ "&kh_qymc=" + khinfo.qymc + "&kh_phone=" + khinfo.phone  + "&kc_id=" + this.params.kcinfo.id + "&kc_ddje=" + this.params.kcinfo.jiage + "&appu_id=" + user.phone+ "&appu_name=" + user.realname;
+        //url_ = url_.replace('&','%26');
+        // 传id 就可以了，客户 购买了 哪个产品 销售是哪个
+        let url_ = "app/jsp/shanc/scewm.jsp?kh_id=" + khinfo.id  + "&kc_id=" + khinfo.kc_id  + "&ddh=" + khinfo.ddh + "&appu_id=" + khinfo.appu_id + "&zffs=" + zffs;
+        if (zffs == 'wx') {
+            // 微信支付
+            this.props.navigation.navigate('WebScreen', {
+                url: url_,
+                name: "微信扫码支付",
+                // info: info,
+                callback: ((info) => { //回调函数
+                    // 回调了
+                    this.fetchNewsData(0, 10);
+                })
+            });
+        }
 
-
-        // this.props.navigation.navigate('WebScreen', {
-
-        //     url: url_,
-        //     name: "订单支付",
-        //     // info: info,
-        //     callback: ((info) => { //回调函数
-        //         // 回调了
-        //         this.fetchNewsData(0, 10);
-        //     })
-
-        // });
+         
 
     }
 
-    gokehudetail(rowData) {
-        this.props.navigation.navigate('Kehuinfo', { kehuinfo: rowData });
+    goDingddetail(rowData) {
+        this.props.navigation.navigate('Dingdxq', { info: rowData });
     }
 
 
@@ -381,7 +387,7 @@ export default class DingdPage extends Component {
                             <Text style={styles.wutuvcontent} ><Icons style={styles.icon14} name='phone' color="#888" />  电话：{rowData.kh_phone}</Text>
                         </TouchableOpacity>
                     </View>
-                    {/* <TouchableOpacity onPress={this.gokehudetail.bind(this, rowData)} >
+                    {/* <TouchableOpacity onPress={this.goDingddetail.bind(this, rowData)} >
                         <View style={{ width: WIDTH03, alignItems: 'flex-end', justifyContent: 'flex-end' }}>
                             <Icons style={styles.icon16} name='arrow-right' color="#888" />
                         </View>
@@ -393,33 +399,54 @@ export default class DingdPage extends Component {
                 <Text style={styles.wutuvcontent} ><Icons style={styles.icon14} name='grid' color="#888" />  所属行业：{rowData.hangye}</Text>
                 <Text style={styles.wutuvcontent} ><Icons style={styles.icon14} name='organization' color="#888" />  企业规模：{rowData.guimo}</Text>
                 <Text style={styles.wutuvcontent} ><Icons style={styles.icon14} name='location-pin' color="#888" />  所属区域：{rowData.ssqy}</Text> */}
-                <View style={styles.rowldv}>
-                    <TouchableOpacity onPress={this.sckehu.bind(this, rowData.id)}>
-                        <Text style={styles.fontheis16} ><Icons style={styles.icon14} name='user-unfollow' color="#d33d3c" />  删除</Text>
-                    </TouchableOpacity>
+               
 
-                    {
+               {
                         rowData.state == '2' ?
-                            null :
-                            <TouchableOpacity onPress={this.xgkehu.bind(this, rowData.id)}>
-                                <View style={styles.rowendv}>
-                                    {/* <Text style={styles.fonthuangsborer16} >修改</Text> */}
-                                    <Text style={styles.fontheis16} ><Icons style={styles.icon14} name='user-following' color="#ffbe10" />  支付</Text>
-                                </View>
-                            </TouchableOpacity>
+                        <View style={styles.rowldv2}>
+
+
+                        <TouchableOpacity onPress={this.goDingddetail.bind(this, rowData)}>
+                            <View style={styles.rowendv}> 
+                                <Text style={styles.fontheis16} ><Icons style={styles.icon14} name='bulb' color="#5394ff" />  查看</Text>
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+     :
+                           
+
+ <View style={styles.rowldv}>
+
+                    
+ <TouchableOpacity onPress={this.sckehu.bind(this, rowData.id)}>
+                <Text style={styles.fontheis16} ><Icons style={styles.icon14} name='user-unfollow' color="#d33d3c" />  删除</Text>
+            </TouchableOpacity>
+
+
+      
+
+ <TouchableOpacity onPress={this.xgkehu.bind(this, rowData)}>
+                    <View style={styles.rowendv}> 
+                        <Text style={styles.fontheis16} ><Icons style={styles.icon14} name='user-following' color="#ffbe10" />  支付</Text>
+                    </View>
+                </TouchableOpacity>
+
+
+
+        <TouchableOpacity onPress={this.goDingddetail.bind(this, rowData)}>
+            <View style={styles.rowendv}> 
+                <Text style={styles.fontheis16} ><Icons style={styles.icon14} name='bulb' color="#5394ff" />  查看</Text>
+            </View>
+        </TouchableOpacity>
+    </View>
+
                     }
 
 
 
 
-                    <TouchableOpacity onPress={this.gokehudetail.bind(this, rowData)}>
-                        <View style={styles.rowendv}>
-                            {/* <Text style={styles.fonthuangsborer16} >修改</Text> */}
-                            <Text style={styles.fontheis16} ><Icons style={styles.icon14} name='bulb' color="#5394ff" />  查看</Text>
-                        </View>
-                    </TouchableOpacity>
-                </View>
-
+               
+               
 
 
             </View>
@@ -968,6 +995,16 @@ const styles = StyleSheet.create({
     rowldv: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+        alignItems: 'center',
+        borderTopColor: '#f5f5f5',
+        borderTopWidth: 1,
+        paddingTop: 8,
+        marginTop: 8,
+    },
+
+    rowldv2: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
         alignItems: 'center',
         borderTopColor: '#f5f5f5',
         borderTopWidth: 1,

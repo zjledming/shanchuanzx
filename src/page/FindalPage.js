@@ -244,8 +244,9 @@ export default class FindalPage extends Component {
         this.fetchNewsData('getBytype', 0, 10);
     }
 
-    _goDetail(banneritems_) {
-        this.props.navigation.navigate('Detailkhal', { uuid: banneritems_.remark1 });
+    _goDetail(banneritems_) { 
+        // this.props.navigation.navigate('Detailkhal', { uuid: banneritems_.remark1 });
+        this.props.navigation.navigate('Detail', { uuid: banneritems_.remark1,flag:'al' });
     }
 
 

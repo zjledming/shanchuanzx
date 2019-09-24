@@ -25,7 +25,7 @@ import NavBar from '../common/NavBar';
 import { getNewsByChannel } from '../api/news';
 // import { getBanners } from '../api/news';
 import { px2dp, isSpace } from '../util/format';
-import Icon from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import * as LoginInfo from './Login/LoginInfo';
 import mstyles from '../utils/mstyles';
 
@@ -39,6 +39,8 @@ var datu_width = WINDOW_WIDTH - 20;
 var datu_heigth = datu_width * 0.5;
 
 const topbarHeight = (Platform.OS === 'ios' ? px2dp(64) : px2dp(42));
+
+import RNFS from 'react-native-fs';
 
 import SQLite from "../utils/SQLite";
 var sqLite = new SQLite();
@@ -223,6 +225,115 @@ export default class FindhcPage extends Component {
 
 
 
+    shanc(rowData) {
+
+        var uuid = rowData.uuid;
+        var toLoadPath = RNFS.DocumentDirectoryPath;
+        Alert.alert('缓存删除之后无法找回，请谨慎操作，确定删除吗？', '', [
+            {
+                text: '取消', onPress: () => {
+
+                }
+            },
+            {
+                text: '确定', onPress: () => {
+                    // 两部分，列表和详情
+
+
+                    this.setState({ isShowLoading: true });
+
+                    // 防止插入重复，先删除，再新增
+                    sqLite.deleteDataBy('PUBP', 'uuid', uuid);
+                    // sqLite.deleteDataBy('PUBS', 'uuid', uuid);
+
+                    if (!db) {
+                        this.open();
+                    }
+
+
+                    // 删除之前先要查询出来， 是否有音视频，有的话 要先删除掉
+                    try {
+                        //查询
+                        db.transaction((tx) => {
+                            tx.executeSql("select * from PUBS where uuid = ? ", [uuid], (tx, results) => {
+                                var newsArr = [];
+                                var len = results.rows.length;
+
+                                for (let i = 0; i < len; i++) {
+                                    let tempobj = results.rows.item(i);
+                                    if (tempobj.fileextend == ".mp4" || tempobj.fileextend == ".mp3") {
+                                        // ToastUtil.showLoading('正在删除缓存文件，请稍等...');
+
+
+
+                                        // 替换成本地地址
+                                        let tempstr = tempobj.zwnr;
+                                        let downloadDest = toLoadPath + tempstr.split('savepic')[1];
+                                        // tempobj.zwnr = 'file:///' + downloadDest;
+                                        // newsArr.push(tempobj);
+
+
+                                        // create a path you want to delete
+                                        // var path = RNFS.DocumentDirectoryPath + '/test.txt';
+
+                                        return RNFS.unlink(downloadDest)
+                                            .then(() => {
+                                                // ToastUtil.hideLoading();
+                                                console.log('FILE DELETED');
+                                            })
+                                            // `unlink` will throw an error, if the item to unlink does not exist
+                                            .catch((err) => {
+                                                console.log(err.message);
+                                            });
+                                    }
+                                }
+
+                            });
+                        }, (error) => {
+                            console.log(error);
+                        });
+                    } catch (e) {
+                        console.log(e);
+                    }
+
+
+                    db.transaction((tx) => {
+                        tx.executeSql('delete from PUBS where uuid = ?', [uuid], () => {
+                            this.fetchNewsData('componentDidMount', 0, 0, 10);
+                            this.setState({ isShowLoading: false });
+                        });
+                    });
+
+
+
+
+
+                    // 删除文件
+                    // if (rowData.fileextend == ".mp4" || rowData.fileextend == ".mp3") {
+                    //     // 替换成本地地址
+                    //     let tempstr  = tempobj.zwnr;
+                    //     let downloadDest = toLoadPath + tempstr.split('savepic')[1];
+                    //     tempobj.zwnr = 'file:///' + downloadDest;
+                    //     newsArr.push(tempobj);
+                    // }
+
+
+
+
+                    // const res = deleteShouc(id); // api接口 
+                    // res.then((newsArr) => {
+                    //     // this.fetchNewsData(channelId,0, 10);
+                    //     this.getCurrentNews();
+                    //     this.setState({ isShowLoading: false });
+                    // }).catch((e) => { // 错误异常处理
+                    //     ToastAndroid.show(e, ToastAndroid.SHORT); // androidToast
+                    // })
+                }
+            },
+        ]);
+    }
+
+
 
     _renderFooter = () => { //底部加载(一个圆圈)
 
@@ -295,11 +406,11 @@ export default class FindhcPage extends Component {
     renderItem(rowData, index) {
 
         return (
-            <TouchableWithoutFeedback onPress={this._goDetail.bind(this, rowData)} >
-                <View style={[mstyles.viewrowb, mstyles.backbais, mstyles.borderrs10, mstyles.padding10, mstyles.margin10zy, mstyles.paddingbot12, mstyles.margintop13]}>
+
+            <View style={[mstyles.viewrowb, mstyles.backbais, mstyles.borderrs10, mstyles.padding10, mstyles.margin10zy, mstyles.paddingbot12, mstyles.margintop13, { position: 'relative' }]}>
 
 
-
+                <TouchableWithoutFeedback onPress={this._goDetail.bind(this, rowData)} >
                     <View style={[mstyles.w120sy]}>
                         <Text style={mstyles.text16heis} numberOfLines={1}>{rowData.title}</Text>
                         <Text style={[mstyles.text14huis, mstyles.margintop7, mstyles.lineh18]} numberOfLines={3}>{rowData.jianjie}</Text>
@@ -307,18 +418,26 @@ export default class FindhcPage extends Component {
                             <Text style={mstyles.text12huis} numberOfLines={1}>{rowData.fbr}</Text><Text style={[mstyles.text12huis, mstyles.paddingleft8]} numberOfLines={1}>{rowData.fbsj}</Text>
                         </View>
                     </View>
+                </TouchableWithoutFeedback>
+                <TouchableWithoutFeedback onPress={this._goDetail.bind(this, rowData)} >
                     <View>
                         <Image style={[mstyles.img120, mstyles.textbdrd5]} source={{ uri: rowData.headpic }}></Image>
                     </View>
-                    {/* {
+                </TouchableWithoutFeedback>
+                {/* {
                         !isSpace(datuurl) ?
                             <View> <Image style={[mstyles.img120, mstyles.borderrs10]} source={{ uri: datuurl }}></Image> </View> :
                             null
                     } */}
 
+                <TouchableOpacity onPress={this.shanc.bind(this, rowData)} style={{ position: "absolute", right: px2dp(2), top: px2dp(2) }}>
+                    <View style={{ backgroundColor: '#fff', width: px2dp(30), height: px2dp(30), borderRadius: px2dp(15) }}>
+                        <Icon style={{ fontSize: px2dp(30) }} name='highlight-off' color="#969696" />
+                    </View>
+                </TouchableOpacity>
 
-                </View>
-            </TouchableWithoutFeedback>
+            </View>
+
 
         );
 

@@ -95,11 +95,23 @@ export default class FindxxPage extends Component {
                 });
             }
         });
+
+        
+        this._blurListener = this.props.navigation.addListener('didBlur', () => {
+              // 隐藏弹出框
+              if(this.refs.menuxx.state.isOpen == true){
+                this.refs.menuxx.close();
+              }
+             
+        });
+
     }
 
 
     componentWillUnmount() {
         this._navListener.remove();
+        this._blurListener.remove();
+        
     }
 
 
@@ -492,18 +504,6 @@ export default class FindxxPage extends Component {
             </ImageBackground>
 
         );
-
-
-        
-        // if(LoginInfo.isLogin()){
-
-        // }else{
-        //     return (
-        //        null
-        //     );
-        // }
-
-
        
     }
 

@@ -20,13 +20,13 @@ import BackToTop from '../components/BackToTop'; // 顶部返回组件
 import WebViewPage from './WebViewPage'; // webView组件
 import Search from './Search'; // 搜索组件
 import Detail from './Detail'; // 详情组件
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import Ionicons from 'react-native-vector-icons/MaterialIcons';
 import LoadingView from '../utils/LoadingView';
 import * as LoginInfo from './Login/LoginInfo';
 
 
 import { getNewsByChannel } from '../api/news';
-import { getBanners } from '../api/news';
+import { getBanners, deleteShouc } from '../api/news';
 import { px2dp } from '../util/format';
 
 
@@ -156,12 +156,12 @@ export default class FindscPage extends Component {
             });
 
             // 加载更多的时候才拼接，其他情况应该是重置
-            if(start == 0){
+            if (start == 0) {
                 this.setState({ // 设置状态
                     newsData: newsArr
                 });
 
-            }else{
+            } else {
                 let temArr = this.state.newsData.slice(); // 返回切片数据
                 temArr.push(...newsArr);
                 this.setState({ // 设置状态
@@ -288,6 +288,32 @@ export default class FindscPage extends Component {
     }
 
 
+    shanc(id) {
+
+
+        Alert.alert('收藏删除之后无法找回，请谨慎操作，确定删除吗？', '', [
+            {
+                text: '取消', onPress: () => {
+
+                }
+            },
+            {
+                text: '确定', onPress: () => {
+                    this.setState({ isShowLoading: true });
+                    const res = deleteShouc(id); // api接口 
+                    res.then((newsArr) => {
+                        // this.fetchNewsData(channelId,0, 10);
+                        this.getCurrentNews();
+                        this.setState({ isShowLoading: false });
+                    }).catch((e) => { // 错误异常处理
+                        ToastAndroid.show(e, ToastAndroid.SHORT); // androidToast
+                    })
+                }
+            },
+        ]);
+    }
+
+
 
 
     renderItem(rowData, index) {
@@ -308,30 +334,39 @@ export default class FindscPage extends Component {
 
 
             return (
-                <TouchableWithoutFeedback onPress={this._goDetail.bind(this, rowData)} >
-                    <View style={styles.santuv}>
 
+                <View style={styles.santuv}>
 
-                        <View style={styles.wutuvt}>
-                            {/* <Text style={styles.wutuvtag1} numberOfLines={1}>视频</Text> */}
-                            <Text style={styles.wutuvttitle} >{rowData.title}</Text>
+                    <TouchableWithoutFeedback onPress={this._goDetail.bind(this, rowData)} >
+                        <View>
+                            <View style={styles.wutuvt}>
+                                {/* <Text style={styles.wutuvtag1} numberOfLines={1}>视频</Text> */}
+                                <Text style={styles.wutuvttitle} >{rowData.title}</Text>
+                            </View>
+                            <Text style={styles.wutuvcontent} numberOfLines={3}>{rowData.jianjie}</Text>
+
+                            <View style={styles.wutuvb}>
+
+                                {/* <Image style={styles.datuimg} source={require('../../../img/home/kh_1.png')}></Image> */}
+                                {picitems}
+
+                            </View>
+
                         </View>
-                        <Text style={styles.wutuvcontent} numberOfLines={3}>{rowData.jianjie}</Text>
+                    </TouchableWithoutFeedback>
 
-                        <View style={styles.wutuvb}>
-
-                            {/* <Image style={styles.datuimg} source={require('../../../img/home/kh_1.png')}></Image> */}
-                            {picitems}
-
-                        </View>
-
-                        <View style={styles.wutuvb}>
-                            {/* <Text style={styles.wutuvprice1} numberOfLines={1}>￥2999.0</Text> */}
+                    <View style={styles.wutuvb, { display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: px2dp(5) }}>
+                        {/* <Text style={styles.wutuvprice1} numberOfLines={1}>￥2999.0</Text> */}
+                        <View style={{ flexDirection: 'row' }}>
                             <Text style={styles.wutuvprice2} numberOfLines={1}>{rowData.fbr}</Text><Text style={styles.wutuvprice2} numberOfLines={1}>{rowData.fbsj}</Text>
                         </View>
-
+                        <TouchableOpacity onPress={this.shanc.bind(this, rowData.id)} style={{}}>
+                            <Ionicons style={{ fontSize: px2dp(26) }} name='delete-forever' color="#969696" />
+                        </TouchableOpacity>
                     </View>
-                </TouchableWithoutFeedback>
+
+                </View>
+
 
 
 
@@ -341,25 +376,31 @@ export default class FindscPage extends Component {
             return (
 
                 <TouchableWithoutFeedback onPress={this._goDetail.bind(this, rowData)} >
-                    <View style={styles.onetuv}>
+                    <View style={styles.onetuv1}>
 
-                        <View style={styles.onetuvl}>
-                            <Text style={styles.wutuvttitle} numberOfLines={3}>{rowData.title}</Text>
+                        <View style={{ flexDirection: 'row', }}>
+                            <View style={styles.onetuvl}>
+                                <Text style={styles.wutuvttitle} numberOfLines={3}>{rowData.title}</Text>
+                                <Text style={styles.wutuvcontent} numberOfLines={3}>{rowData.jianjie}</Text>
+                            </View>
 
-                            <Text style={styles.wutuvcontent} numberOfLines={3}>{rowData.jianjie}</Text>
-
-                            <View style={styles.onetuvlb}><Text style={styles.wutuvprice2} numberOfLines={1}>{rowData.fbr}</Text><Text style={styles.wutuvprice2} numberOfLines={1}>{rowData.fbsj}</Text>
+                            <View style={styles.onetuvr}>
+                                {picitems}
                             </View>
                         </View>
 
-                        <View style={styles.onetuvr}>
 
-                            {picitems}
+                        <View style={styles.wutuvb, { display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: px2dp(5) }}>
+                            <View style={styles.onetuvlb}><Text style={styles.wutuvprice2} numberOfLines={1}>{rowData.fbr}</Text><Text style={styles.wutuvprice2} numberOfLines={1}>{rowData.fbsj}</Text>
+                            </View>
+                            <TouchableOpacity onPress={this.shanc.bind(this, rowData.id)} style={{}}>
+                                <Ionicons style={{ fontSize: px2dp(26) }} name='delete-forever' color="#969696" />
+                            </TouchableOpacity>
                         </View>
 
                     </View>
 
-                </TouchableWithoutFeedback>
+                </TouchableWithoutFeedback >
 
 
             );
@@ -382,10 +423,13 @@ export default class FindscPage extends Component {
               <Image style={styles.santuimg} source={require('../../../img/home/kh_1.png')}></Image> */}
                             {picitems}
                         </View>
-
-                        <View style={styles.wutuvb}>
-                            {/* <Text style={styles.wutuvprice1} numberOfLines={1}>￥2999.0</Text> */}
-                            <Text style={styles.wutuvprice2} numberOfLines={1}>{rowData.fbr}</Text><Text style={styles.wutuvprice2} numberOfLines={1}>{rowData.fbsj}</Text>
+                        
+                        <View style={styles.wutuvb, { display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: px2dp(5) }}>
+                            <View style={styles.onetuvlb}><Text style={styles.wutuvprice2} numberOfLines={1}>{rowData.fbr}</Text><Text style={styles.wutuvprice2} numberOfLines={1}>{rowData.fbsj}</Text>
+                            </View>
+                            <TouchableOpacity onPress={this.shanc.bind(this, rowData.id)} style={{}}>
+                                <Ionicons style={{ fontSize: px2dp(26) }} name='delete-forever' color="#969696" />
+                            </TouchableOpacity>
                         </View>
 
                     </View>
@@ -405,9 +449,16 @@ export default class FindscPage extends Component {
                         </View>
                         <Text style={styles.wutuvcontent} numberOfLines={3}>{rowData.jianjie}</Text>
 
-                        <View style={styles.wutuvb}>
-                            {/* <Text style={styles.wutuvprice1} numberOfLines={1}>￥2999.0</Text> */}
+                        {/* <View style={styles.wutuvb}>
                             <Text style={styles.wutuvprice2} numberOfLines={1}>{rowData.fbr}</Text><Text style={styles.wutuvprice2} numberOfLines={1}>{rowData.fbsj}</Text>
+                        </View> */}
+
+                        <View style={styles.wutuvb, { display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: px2dp(5) }}>
+                            <View style={styles.onetuvlb}><Text style={styles.wutuvprice2} numberOfLines={1}>{rowData.fbr}</Text><Text style={styles.wutuvprice2} numberOfLines={1}>{rowData.fbsj}</Text>
+                            </View>
+                            <TouchableOpacity onPress={this.shanc.bind(this, rowData.id)} style={{}}>
+                                <Ionicons style={{ fontSize: px2dp(26) }} name='delete-forever' color="#969696" />
+                            </TouchableOpacity>
                         </View>
 
                     </View>
@@ -678,6 +729,17 @@ const styles = StyleSheet.create({
 
     onetuv: {
         flexDirection: 'row',
+        marginLeft: 10,
+        marginRight: 10,
+        marginBottom: 5,
+        paddingTop: 5,
+        paddingBottom: 10,
+        borderBottomColor: '#f5f5f5',
+        borderBottomWidth: 1,
+    },
+
+    onetuv1: {
+        flexDirection: 'column',
         marginLeft: 10,
         marginRight: 10,
         marginBottom: 5,
